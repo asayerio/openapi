@@ -1,0 +1,279 @@
+{
+   "openapi": "3.0.0",
+   "info": {
+      "description": "Asayer REST API",
+      "version": "1.0.0",
+      "title": "API"
+   },
+   "servers": [
+      {
+         "url": "http://api.asayer.io/v1"
+      }
+   ],
+   "paths": {
+      "/sites/{site_id}/targets": {
+         "get": {
+            "summary": "Get all the labeled events of a Site",
+            "operationId": "getTargets",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/site_id"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "List of labeled events (clicks and inputs)",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "type": "array",
+                           "items": {
+                              "type": "object",
+                              "properties": {
+                                 "path": {
+                                    "type": "string"
+                                 },
+                                 "label": {
+                                    "type": "string"
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/sites/{site_id}/sessions/{session_id}/events": {
+         "get": {
+            "summary": "Get all the events of a Session",
+            "operationId": "getEvents",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/site_id"
+               },
+               {
+                  "$ref": "#/components/parameters/session_id"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "A map of ordered lists",
+                  "content": {
+                     "application/json": {
+                        "schema": {
+                           "type": "object",
+                           "properties": {
+                              "pages": {
+                                 "type": "array",
+                                 "items": {
+                                    "type": "object",
+                                    "properties": {
+                                       "time": {
+                                          "$ref": "#/components/schemas/time"
+                                       },
+                                       "path": {
+                                          "type": "string"
+                                       },
+                                       "dom_time": {
+                                          "type": "integer",
+                                          "nullable": true
+                                       },
+                                       "load_time": {
+                                          "type": "integer",
+                                          "nullable": true
+                                       },
+                                       "fp_time": {
+                                          "type": "integer",
+                                          "nullable": true
+                                       },
+                                       "fcp_time": {
+                                          "type": "integer",
+                                          "nullable": true
+                                       },
+                                       "referrer": {
+                                          "type": "string"
+                                       }
+                                    }
+                                 }
+                              },
+                              "clicks": {
+                                 "type": "array",
+                                 "items": {
+                                    "type": "object",
+                                    "properties": {
+                                       "time": {
+                                          "$ref": "#/components/schemas/time"
+                                       },
+                                       "target": {
+                                          "$ref": "#/components/schemas/target"
+                                       }
+                                    }
+                                 }
+                              },
+                              "inputs": {
+                                 "type": "array",
+                                 "items": {
+                                    "type": "object",
+                                    "properties": {
+                                       "time": {
+                                          "$ref": "#/components/schemas/time"
+                                       },
+                                       "target": {
+                                          "$ref": "#/components/schemas/target"
+                                       },
+                                       "value": {
+                                          "type": "string"
+                                       },
+                                       "mask": {
+                                          "type": "integer"
+                                       }
+                                    }
+                                 }
+                              },
+                              "custom": {
+                                 "type": "array",
+                                 "items": {
+                                    "type": "object",
+                                    "properties": {
+                                       "time": {
+                                          "$ref": "#/components/schemas/time"
+                                       },
+                                       "name": {
+                                          "type": "string"
+                                       },
+                                       "data": {
+                                          "type": "object",
+                                          "nullable": true
+                                       },
+                                       "source": {
+                                          "type": "string"
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "put": {
+            "summary": "Inject custom events into a Session",
+            "operationId": "putEvents",
+            "parameters": [
+               {
+                  "$ref": "#/components/parameters/site_id"
+               },
+               {
+                  "$ref": "#/components/parameters/session_id"
+               },
+               {
+                  "name": "source",
+                  "in": "query",
+                  "required": false,
+                  "schema": {
+                     "type": "string"
+                  }
+               }
+            ],
+            "requestBody": {
+               "required": true,
+               "content": {
+                  "application/json": {
+                     "schema": {
+                        "type": "array",
+                        "items": {
+                           "type": "object",
+                           "required": [
+                              "name",
+                              "data"
+                           ],
+                           "properties": {
+                              "timestamp": {
+                                 "description": "Timestamp of the event (in s)",
+                                 "type": "number",
+                                 "format": "float64"
+                              },
+                              "name": {
+                                 "type": "string"
+                              },
+                              "data": {
+                                 "type": "object",
+                                 "nullable": true
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            },
+            "responses": {
+               "200": {
+                  "description": "Events were successfully added!"
+               },
+               "404": {
+                  "description": "Session not found!"
+               }
+            }
+         }
+      }
+   },
+   "components": {
+      "parameters": {
+         "site_id": {
+            "in": "path",
+            "name": "site_id",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+               "type": "integer",
+               "format": "uint"
+            }
+         },
+         "session_id": {
+            "in": "path",
+            "name": "session_id",
+            "description": "Session ID",
+            "required": true,
+            "schema": {
+               "type": "integer",
+               "format": "uint64"
+            }
+         }
+      },
+      "schemas": {
+         "time": {
+            "description": "Time of the event relative to the Session's start time (in ms)",
+            "type": "integer",
+            "format": "uint"
+         },
+         "target": {
+            "type": "object",
+            "properties": {
+               "path": {
+                  "type": "string"
+               },
+               "label": {
+                  "type": "string",
+                  "nullable": true
+               }
+            }
+         }
+      },
+      "securitySchemes": {
+         "ApiKeyAuth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-API-KEY"
+         }
+      }
+   },
+   "security": [
+      {
+         "ApiKeyAuth": []
+      }
+   ]
+}
