@@ -7,7 +7,7 @@
    },
    "servers": [
       {
-         "url": "http://api.asayer.io/v1"
+         "url": "https://api.asayer.io/v1"
       }
    ],
    "paths": {
