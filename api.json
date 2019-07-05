@@ -3,7 +3,7 @@
    "info": {
       "description": "Asayer REST API",
       "version": "1.0.0",
-      "title": "API"
+      "title": "REST API"
    },
    "servers": [
       {
